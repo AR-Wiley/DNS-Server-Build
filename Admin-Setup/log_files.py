@@ -1,28 +1,50 @@
 import os
 import sys
 
+var_log = "/var/log"
 log_dir = "/var/log/SysAdmin-Logs"
-log_files = ["updates.log", "install.log", "users.log", "software.log"]
+log_files = [
+    "users.log",
+    "groups.log",
+    "sudo.log",
+    "authentication.log",
+    "permissions.log",
+    "software.log",
+    "updates.log",
+    "services.log",
+    "network.log",
+    "config.log",
+    "security.log",
+    "errors.log"
+]
 
 def check_root():
     if os.getuid() != 0:
         print("This script must be run as root", file=sys.stderr)
         sys.exit(1)
 
-def validate_path(path):
+def validate_var_log(path):
     if not os.path.exists(path):
+        print(f"{path} does not exist. Cannot proceed.")
+        sys.exit(1)
+
+def main():
+
+    check_root()
+    validate_var_log(var_log)
+
+    if not os.path.exists(log_dir):
         print("Path does not exist")
         print("Creating path")
         try:
-            os.makedirs(path)
+            os.makedirs(log_dir)
             print("Path has been created")
-            print(path)
+            print(log_dir)
         except Exception as e:
             print(f"An error has occured: {e}")
 
-def validate_file(path, files):
-    for i in files:
-        file_path = os.path.join(path, i)
+    for i in log_files:
+        file_path = os.path.join(log_dir, i)
         if not os.path.isfile(file_path):
             print(f"Log file {i} does not exist")
             print(f"Creating file {i}")
@@ -35,7 +57,5 @@ def validate_file(path, files):
             except Exception as e:
                 print(f"An error has occured: {e}")
 
-
-check_root()
-validate_path(log_dir)
-validate_file(log_dir, log_files)
+if __name__ == "__main__":
+    main()
