@@ -6,7 +6,7 @@ from datetime import datetime
 
 log_path = "/var/log/SysAdmin-Logs"
 software_log_file = "software.log"
-update_log_file = "update.log"
+update_log_file = "updates.log"
 software_path = os.path.join(log_path,software_log_file)
 update_path = os.path.join(log_path,update_log_file)
 file_paths = [software_path, update_path]
@@ -18,14 +18,12 @@ def check_root():
         print("This script must be run as root", file=sys.stderr)
         sys.exit(1)
 
-
 def validateLogPath(path):
     if not os.path.exists(path):
         try:
             os.makedirs(path)
         except Exception as e:
             print(f"An error has occured in creating log path: {e}")
-
 
 def validateLogFile(path_lst):
     for i in path_lst:
@@ -35,7 +33,6 @@ def validateLogFile(path_lst):
                     pass
             except Exception as e:
                 print(f"An error has occurred in creating log file: {e}")
-
 
 def update(lst):
     for i in lst:
@@ -51,24 +48,6 @@ def update(lst):
             with open(update_path, "a") as f:
                 f.write(f"{timestamp} - Failed: {i}\n")
             print(f"Failed: {i}")
-
-
-def install_vim():
-    install_vim = ["dnf", "install", "-y", "vim"]
-    if shutil.which("vim") is not None:
-            print("Vim is already installed.")
-    try:
-        subprocess.run(install_vim, check=True)
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        with open(software_path, "a") as f:
-            f.write(f"{timestamp} - Success: dnf install -y vim\n")
-        print(f"Success: Vim installed")
-    except subprocess.CalledProcessError:
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        with open(software_path, "a") as f:
-            f.write(f"{timestamp} - Failed: dnf install -y vim\n")
-        print(f"Failed: Vim installation")
-
 
 def uninstall_vi():
     uninstall_vi = ["dnf", "remove", "vim-minimal"]
@@ -86,12 +65,30 @@ def uninstall_vi():
             f.write(f"{timestamp} - Failed: dnf remove vim-minimal\n")
         print(f"Failed: Vi failed to remove")
 
+def main():
+    check_root()
+    validateLogPath(log_path)
+    validateLogFile(file_paths)
+    update(updates)
 
-check_root()
-validateLogPath(log_path)
-validateLogFile(file_paths)
-update(updates)
-install_vim()
-uninstall_vi()
+    install_vim = ["dnf", "install", "-y", "vim"]
+    if shutil.which("vim") is not None:
+            print("Vim is already installed.")
+    try:
+        subprocess.run(install_vim, check=True)
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        with open(software_path, "a") as f:
+            f.write(f"{timestamp} - Success: dnf install -y vim\n")
+        print(f"Success: Vim installed")
+    except subprocess.CalledProcessError:
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        with open(software_path, "a") as f:
+            f.write(f"{timestamp} - Failed: dnf install -y vim\n")
+        print(f"Failed: Vim installation")
+
+    uninstall_vi()
+
+if __name__ == "__main__":
+    main()
 
 
