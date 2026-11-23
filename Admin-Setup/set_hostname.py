@@ -5,8 +5,9 @@ from datetime import datetime
 
 hostname_file = "/etc/hostname"
 log_path = "/var/log/SysAdmin-Logs"
-log_file = "system.log"
+log_file = "config.log"
 log_file_path = os.path.join(log_path,log_file)
+hostname = "FDSA-DNS01"
 
 def check_root():
     if os.getuid() != 0:
@@ -47,18 +48,18 @@ def main():
     try:
         current_time = timestamp()
         with open(hostname_file, "w") as file:
-            file.write("dnsserver1")
+            file.write(hostname)
         with open(log_file_path, "a") as f:
-            f.write(f"{current_time} - Hostname set to dnsserver1\n")
-        print(f"Hostname set to dnsserver1")
+            f.write(f"{current_time} - Hostname set to {hostname}\n")
+        print(f"Hostname set to {hostname}")
         print("Rebooting machine")
         subprocess.run(command, check=True)
     except Exception as e:
         current_time = timestamp()
         with open(log_file_path, "a") as f:
-            f.write(f"{current_time} - Hostname failed to update to dnsserver1\n")
-            print(f"Hostname failed to update to dnsserver1: {e}")
-        print(f"Hostname failed to update to dnsserver1: {e}")
+            f.write(f"{current_time} - Hostname failed to update to {hostname}\n")
+            print(f"Hostname failed to update to {hostname}: {e}")
+        print(f"Hostname failed to update to {hostname}: {e}")
 
 if __name__ == "__main__":
     main()
